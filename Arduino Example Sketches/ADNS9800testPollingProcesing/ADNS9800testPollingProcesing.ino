@@ -55,7 +55,7 @@ unsigned long timer;
 unsigned long pollTimer;
 volatile int xydat[2];
 volatile byte movementflag=0;
-const int ncs = 10;
+const int ncs = 3;
 
 extern const unsigned short firmware_length;
 extern const unsigned char firmware_data[];
@@ -73,7 +73,7 @@ void setup() {
   SPI.setClockDivider(8);
 
   performStartup();  
-  Serial.println("ADNS9800testPolling");
+  //Serial.println("ADNS9800testPolling");
   dispRegisters();
   delay(5000);
   initComplete=9;
@@ -119,7 +119,7 @@ void adns_write_reg(byte reg_addr, byte data){
 
 void adns_upload_firmware(){
   // send the firmware to the chip, cf p.18 of the datasheet
-  Serial.println("Uploading firmware...");
+  //Serial.println("Uploading firmware...");
   // set the configuration_IV register in 3k firmware mode
   adns_write_reg(REG_Configuration_IV, 0x02); // bit 1 = 1 for 3k mode, other bits are reserved 
   
@@ -172,7 +172,7 @@ void performStartup(void){
   
   delay(1);
 
-  Serial.println("Optical Chip Initialized");
+ // Serial.println("Optical Chip Initialized");
   }
 
 void UpdatePointer(void){
@@ -200,12 +200,12 @@ void dispRegisters(void){
   for(rctr=0; rctr<4; rctr++){
     SPI.transfer(oreg[rctr]);
     delay(1);
-    Serial.println("---");
-    Serial.println(oregname[rctr]);
-    Serial.println(oreg[rctr],HEX);
+ //   Serial.println("---");
+//    Serial.println(oregname[rctr]);
+//    Serial.println(oreg[rctr],HEX);
     regres = SPI.transfer(0);
-    Serial.println(regres,BIN);  
-    Serial.println(regres,HEX);  
+//    Serial.println(regres,BIN);  
+//    Serial.println(regres,HEX);  
     delay(1);
   }
   digitalWrite(ncs,HIGH);
@@ -224,7 +224,7 @@ int convTwosComp(int b){
   currTime = millis();
   
   if(currTime > timer){    
-    Serial.println(testctr++);
+    //Serial.println(testctr++);
     timer = currTime + 2000;
     }
     
@@ -233,11 +233,13 @@ int convTwosComp(int b){
     xydat[0] = convTwosComp(xydat[0]);
     xydat[1] = convTwosComp(xydat[1]);
       if(xydat[0] != 0 || xydat[1] != 0){
-        Serial.print("x = ");
+        Serial.print("s");
         Serial.print(xydat[0]);
-        Serial.print(" | ");
-        Serial.print("y = ");
-        Serial.println(xydat[1]);
+        Serial.print("s");
+        //Serial.print(" | ");
+        //Serial.print("y = ");
+        Serial.print(xydat[1]);
+        Serial.print("|");
         }
     pollTimer = currTime + 10;
     }

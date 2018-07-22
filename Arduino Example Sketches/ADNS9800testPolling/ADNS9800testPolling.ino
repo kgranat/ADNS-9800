@@ -52,9 +52,10 @@ byte initComplete=0;
 byte testctr=0;
 unsigned long currTime;
 unsigned long timer;
+unsigned long pollTimer;
 volatile int xydat[2];
 volatile byte movementflag=0;
-const int ncs = 10;
+const int ncs = 3;
 
 extern const unsigned short firmware_length;
 extern const unsigned char firmware_data[];
@@ -64,7 +65,7 @@ void setup() {
   
   pinMode (ncs, OUTPUT);
   
-  attachInterrupt(0, UpdatePointer, FALLING);
+  //attachInterrupt(0, UpdatePointer, FALLING);
   
   SPI.begin();
   SPI.setDataMode(SPI_MODE3);
@@ -72,8 +73,9 @@ void setup() {
   SPI.setClockDivider(8);
 
   performStartup();  
+  Serial.println("ADNS9800testPolling");
   dispRegisters();
-  delay(100);
+  delay(5000);
   initComplete=9;
 
 }
@@ -181,7 +183,7 @@ void UpdatePointer(void){
     xydat[1] = (int)adns_read_reg(REG_Delta_Y_L);
     digitalWrite(ncs,HIGH);     
 
-    movementflag=1;
+    //movementflag=1;
     }
   }
 
@@ -223,16 +225,21 @@ int convTwosComp(int b){
   
   if(currTime > timer){    
     Serial.println(testctr++);
-    timer = currTime + 500;
+    timer = currTime + 2000;
     }
     
-  if(movementflag){
-    Serial.print("x = ");
-    Serial.print( convTwosComp(xydat[0]) );
-    Serial.print(" | ");
-    Serial.print("y = ");
-    Serial.println( convTwosComp(xydat[1]) );
-    movementflag=0;
+  if(currTime > pollTimer){
+    UpdatePointer();
+    xydat[0] = convTwosComp(xydat[0]);
+    xydat[1] = convTwosComp(xydat[1]);
+      if(xydat[0] != 0 || xydat[1] != 0){
+        Serial.print("x = ");
+        Serial.print(xydat[0]);
+        Serial.print(" | ");
+        Serial.print("y = ");
+        Serial.println(xydat[1]);
+        }
+    pollTimer = currTime + 10;
     }
     
   }
